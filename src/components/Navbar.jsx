@@ -1,23 +1,30 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Navbar() {
+  const location = useLocation();
+
+  const active = (path) => {
+    location.pathname === path 
+      ? "text-blue-500 font-semibold" 
+      : "text-slate-300 hover:text-blue-500"
+  }
 
   return (
     <header className='flex justify-between pt-15 pb-10 pl-20 pr-20 bg-[#0F172A]'>
       <Link to="/">
         <h1 className='text-3xl text-white'>Github Profile Visualizer</h1>
       </Link>        
-        <div className='flex gap-5'>
-          <Link to="/">
-            <p className='text-xl text-white hover:text-[#3B82F6] cursor-pointer'>Home</p>
-          </Link>
-          <Link to="/repositories">
-            <p className='text-xl text-white hover:text-[#3B82F6] cursor-pointer'>Repositories</p>
-          </Link>
-          <Link to="/analysis">
-            <p className='text-xl text-white hover:text-[#3B82F6] cursor-pointer'>Analysis</p>
-          </Link>
-        </div>
+      <ul className='flex space-x-6'>          
+        <li className={active('/')}>
+          <Link to="/">Home</Link>
+        </li>
+        <li className={active('/repositories')}>
+          <Link to="/repositories">Repositories</Link>
+        </li>
+        <li className={active('/analysis')}>
+          <Link to="/analysis">Analysis</Link>
+        </li>          
+      </ul>
     </header>
   )
 }

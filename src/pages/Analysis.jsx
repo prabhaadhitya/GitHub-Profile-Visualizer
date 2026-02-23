@@ -8,28 +8,28 @@ import NoAnalysisData from "../components/NoAnalysisData";
 import ContributionHeatmap from "../components/ContributionHeatmap";
 
 const USER_QUERY = `
-  query($login:String!) {
-    user(login:$login) {
-      createdAt
-    }
+query($login:String!) {
+  user(login:$login) {
+    createdAt
   }
+}
 `;
 
 const CONTRIBUTIONS_QUERY = `
-  query($login:String!, $from:DateTime!, $to:DateTime!) {
-    user(login:$login) {
-      contributionsCollection(from:$from, to:$to) {
-        contributionCalendar {
-          weeks {
-            contributionDays {
-              date
-              contributionCount
-            }
+query($login:String!, $from:DateTime!, $to:DateTime!) {
+  user(login:$login) {
+    contributionsCollection(from:$from, to:$to) {
+      contributionCalendar {
+        weeks {
+          contributionDays {
+            date
+            contributionCount
           }
         }
       }
     }
   }
+}
 `;
 
 function Analysis() {
@@ -40,28 +40,28 @@ function Analysis() {
 
   const fetchGraphQL = async (query, variables) => {
     try {
-      setIsLoading(true);
-      const res = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, variables }),
-      });
+    setIsLoading(true);
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables }),
+    });
 
-      const json = await res.json();
-      return json.data;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    const json = await res.json();
+    return json.data;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   const fetchLifetimeContributions = async () => {
+    setIsLoading(true)
     try {
-      setIsLoading(true)
       const userData = await fetchGraphQL(USER_QUERY, {
         login: profile.login,
       });
