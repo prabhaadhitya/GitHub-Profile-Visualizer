@@ -1,4 +1,5 @@
 import { createContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export const UserContainer = createContext();
 
@@ -10,7 +11,7 @@ export function UserContextProvider({children}) {
   const [errMsg, setErrMsg] = useState("");
   const [status, setStatus] = useState("idle");
   const [isLoading, setIsLoading] = useState(false)
-
+  const navigate = useNavigate()
    
   const handleInput = async (e) => {
         e.preventDefault();
@@ -27,8 +28,8 @@ export function UserContextProvider({children}) {
             setErrMsg("");
             const response = await fetch(`https://api.github.com/users/${searchTerm}`, {
                 headers: {
-                Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
-            }
+                    Authorization: `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
+                }
             })
             if (!response.ok) {
                 if (response.status === 404) {
@@ -40,7 +41,6 @@ export function UserContextProvider({children}) {
                 else {
                     setErrMsg("Something went wrong. Please try again.");
                 }
-
                 setStatus("error");
                 return;
             } else {
@@ -52,26 +52,38 @@ export function UserContextProvider({children}) {
             setStatus("error");
             setErrMsg("Enter Valid Username");
             setProfile(null);
+            console.log("Error in Search Input: ",error)
         } finally {
             setIsLoading(false)
         }
-
     }
 
-  const errorHandle = () => {
+    const errorHandle = () => {
         setStatus("idle");
         setSearchTerm("");
         setErrMsg("");
     }
 
+    const handleHome = () => {
+        navigate('/')
+    }
+
   const handleRepo = async () => {
-    const response = await fetch(`https://api.github.com/users/${searchTerm}/repos`, {
-                headers: {
+    if (!searchTerm) return;
+    try {
+        const response = await fetch(`https://api.github.com/users/${searchTerm}/repos`, {
+            headers: {
                 "Authorization": `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`
             }
-            });
-    const data = await response.json();
-    setRepos(data)
+        });
+        const data = await response.json();
+        setRepos(data)
+    } catch (error) {
+        setErrMsg("Something went wrong")
+        console.log("Error in Search Repos: ",error)
+    } finally {
+        setIsLoading(false);
+    }    
   }
 
   const values = {
@@ -84,7 +96,9 @@ export function UserContextProvider({children}) {
     errMsg,
     repos, 
     handleRepo, 
-    isLoading
+    isLoading,
+    setIsLoading,
+    handleHome
   }
 
   return (
